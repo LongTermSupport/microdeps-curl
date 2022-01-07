@@ -1,0 +1,41 @@
+{
+  "name": "lts/microdeps-pdo",
+  "type": "library",
+  "description": "A micro dependency that provides a PDO connection factory",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Joseph Edmonds",
+      "email": "joseph@ltscommerce.dev"
+    }
+  ],
+  "require": {
+    "php": "^8.0",
+    "ext-curl": "^8.0"
+  },
+  "require-dev": {
+    "lts/php-qa-ci": "dev-master@dev"
+  },
+  "config": {
+    "bin-dir": "bin",
+    "optimize-autoloader": true,
+    "preferred-install": {
+      "*": "dist"
+    }
+  },
+  "autoload": {
+    "psr-4": {
+      "MicroDeps\\Curl\\": [
+        "src/"
+      ]
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "MicroDeps\\Curl\\Tests\\": [
+        "tests/"
+      ]
+    }
+  },
+  "minimum-stability": "stable"
+}
