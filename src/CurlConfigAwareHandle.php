@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace MicroDeps\Curl;
 
-use MicroDeps\Exception\CurlException;
 use CurlHandle;
 use RuntimeException;
 use ValueError;

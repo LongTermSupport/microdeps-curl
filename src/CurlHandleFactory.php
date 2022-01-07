@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace MicroDeps\Curl;
 
-use MicroDeps\Exception\CurlException;
-
 /**
  * @phpstan-import-type phpstanCurlOptions from CurlOptionCollection
  */
@@ -46,6 +44,22 @@ final class CurlHandleFactory
         return $this->updateOptions([CURLOPT_HEADER => $headers]);
     }
 
+    /** @param resource $fp */
+    public function logToResource($fp): self
+    {
+        return $this->updateOptions(
+            [
+                /*
+                 * The following two options are mutually exclusive,
+                 * you must set header out to false for verbose to be true
+                 */
+                CURLOPT_VERBOSE     => true,
+                CURLINFO_HEADER_OUT => false,
+                CURLOPT_STDERR      => $fp,
+            ]
+        );
+    }
+
     /**
      * @throws CurlException
      */
@@ -61,17 +75,12 @@ final class CurlHandleFactory
             }
         }
 
-        return $this->updateOptions(
-            [
-                /*
-                 * The following two options are mutually exclusive,
-                 * you must set header out to false for verbose to be true
-                 */
-                CURLOPT_VERBOSE     => true,
-                CURLINFO_HEADER_OUT => false,
-                CURLOPT_STDERR      => fopen($logFilePath, 'ab'),
-            ]
-        );
+        $resource = fopen($logFilePath, 'ab+');
+        if (false === $resource) {
+            throw CurlException::withFormat(CurlException::MSG_FAILED_OPENING_LOG_FILE, $logFilePath);
+        }
+
+        return $this->logToResource($resource);
     }
 
     /**

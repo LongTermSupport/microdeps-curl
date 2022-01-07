@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace MicroDeps\Curl;
 
-use MicroDeps\Exception\CurlException;
-
 final class CurlExec
 {
     private bool   $success;
@@ -17,8 +15,10 @@ final class CurlExec
     /**
      * @throws CurlException
      */
-    public function __construct(private CurlConfigAwareHandle $handle, private ?string $logResponseDirectory = null)
-    {
+    public function __construct(
+        private CurlConfigAwareHandle $handle,
+        private ?string $logResponseDirectory = null
+    ) {
         $rawHandle      = $this->handle->getHandle();
         $result         = curl_exec($rawHandle);
         $this->response = \is_string($result) ? $result : '';
@@ -57,15 +57,25 @@ final class CurlExec
         return $this->error;
     }
 
+    /**
+     * @throws CurlException
+     */
     private function log(): void
     {
         $log = $this->handle->getOptions()->getOption(CURLOPT_STDERR);
         if (null === $log || !\is_resource($log)) {
             return;
         }
-        fwrite($log, "\nCurl Info:\n" . $this->getInfoAsString() . "\n\n");
-        if ('' !== $this->error) {
-            fwrite($log, "\nCurl Error:\n" . $this->error . "\n\n");
+        $data = "\nCurl Info:\n" . $this->getInfoAsString() . "\n\n";
+        if (false === fwrite($log, $data)) {
+            throw CurlException::withFormat(CurlException::MSG_FAILED_WRITING_TO_LOG, $data);
+        }
+        if ('' === $this->error) {
+            return;
+        }
+        $data = "\nCurl Error:\n" . $this->error . "\n\n";
+        if (false === fwrite($log, $data)) {
+            throw CurlException::withFormat(CurlException::MSG_FAILED_WRITING_TO_LOG, $data);
         }
     }
 
