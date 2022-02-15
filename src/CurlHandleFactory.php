@@ -9,11 +9,11 @@ namespace MicroDeps\Curl;
  */
 final class CurlHandleFactory
 {
-    /**
-     * @param CurlOptionCollection $options
-     */
-    public function __construct(private CurlOptionCollection $options)
+    private CurlOptionCollection $options;
+
+    public function __construct(CurlOptionCollection $options = null)
     {
+        $this->options = $options ?? new CurlOptionCollection();
     }
 
     public function insecure(): self
@@ -67,11 +67,21 @@ final class CurlHandleFactory
     {
         if (!is_writable($logFilePath)) {
             $logFileDir = \dirname($logFilePath);
-            if (!is_dir($logFileDir) && !mkdir($logFileDir, 0777, true) && !is_dir($logFileDir)) {
-                throw CurlException::withFormat(CurlException::MSG_DIRECTORY_NOT_CREATED, $logFileDir);
+            if (!is_dir($logFileDir) && !@mkdir($logFileDir, 0755, true) && !is_dir($logFileDir)) {
+                $error = error_get_last();
+                throw CurlException::withFormat(
+                    CurlException::MSG_DIRECTORY_NOT_CREATED,
+                    $logFileDir,
+                    $error['message'] ?? 'unknown error'
+                );
             }
-            if (!touch($logFilePath)) {
-                throw CurlException::withFormat(CurlException::MSG_DIRECTORY_NOT_WRITABLE, $logFilePath);
+            if (!@touch($logFilePath)) {
+                $error = error_get_last();
+                throw CurlException::withFormat(
+                    CurlException::MSG_DIRECTORY_NOT_WRITABLE,
+                    $logFileDir,
+                    $error['message'] ?? 'unknown error'
+                );
             }
         }
 

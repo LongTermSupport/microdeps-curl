@@ -10,8 +10,8 @@ use Throwable;
 final class CurlException extends Exception
 {
     public const MSG_RESPONSE_LOG_DIR_NOT_EXIST = 'Curl response log path %s does not exist';
-    public const MSG_DIRECTORY_NOT_CREATED      = 'Directory "%s" was not created';
-    public const MSG_DIRECTORY_NOT_WRITABLE     = 'Directory "%s" is not writable';
+    public const MSG_DIRECTORY_NOT_CREATED      = 'Directory "%s" was not created, error: %s';
+    public const MSG_DIRECTORY_NOT_WRITABLE     = 'Directory "%s" is not writable, error: %s';
     public const MSG_INVALID_OPTIONS            = 'Invalid Curl Option(s) %s';
     public const MSG_FAILED_WRITING_TO_LOG      = 'Failed writing to log: %s';
     public const MSG_FAILED_OPENING_LOG_FILE    = 'Failed opening log file path: %s';

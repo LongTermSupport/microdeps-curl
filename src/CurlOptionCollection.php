@@ -12,7 +12,8 @@ final class CurlOptionCollection
 {
     public const OPTIONS_DEFAULT = [
         /*
-         * true to follow any 'Location: ' header that the server sends as part of the HTTP header. See also CURLOPT_MAXREDIRS.
+         * true to follow any 'Location: ' header that the server sends as part of the HTTP header.
+         * See also CURLOPT_MAXREDIRS.
          */
         CURLOPT_FOLLOWLOCATION => true,
 
@@ -32,6 +33,12 @@ final class CurlOptionCollection
          * Log the headers that are sent with the initial request and make available via curl_getinfo
          */
         CURLINFO_HEADER_OUT    => true,
+
+        /*
+         * true to fail verbosely if the HTTP code returned is greater than or equal to 400.
+         * The default behavior is to return the page normally, ignoring the code.
+         */
+        CURLOPT_FAILONERROR    => true,
     ];
 
     /**

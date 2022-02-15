@@ -11,13 +11,16 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @internal
- * @coversNothing
+ * @covers \MicroDeps\Curl\CurlHandleFactory
  *
  * @small
  */
 final class CurlHandleFactoryTest extends TestCase
 {
-    /** @test */
+    /**
+     * @test
+     * @covers \MicroDeps\Curl\CurlException
+     */
     public function itExceptsIfInvalidLogFile(): void
     {
         $this->expectException(CurlException::class);
@@ -26,5 +29,108 @@ final class CurlHandleFactoryTest extends TestCase
         (new CurlHandleFactory(new CurlOptionCollection()))
             ->logToFile($filePath)
         ;
+    }
+
+    /** @test */
+    public function itCanCreateALogFolderAsRequired(): void
+    {
+        $dirPath = __DIR__ . '/../var/' . __METHOD__;
+        $logPath = "{$dirPath}/test.log";
+        if (file_exists($logPath)) {
+            unlink($logPath);
+        }
+        if (is_dir($dirPath)) {
+            rmdir($dirPath);
+        }
+        (new CurlHandleFactory(new CurlOptionCollection()))
+            ->logToFile($logPath)
+        ;
+        self::assertDirectoryExists($dirPath);
+        self::assertSame('755', decoct(fileperms($dirPath) & 0777));
+    }
+
+    /** @test */
+    public function itCanLogToResource(): void
+    {
+        $factory = (new CurlHandleFactory(new CurlOptionCollection()));
+        $factory->logToResource(STDERR);
+        $actual                        = $factory->createGetHandle(null)->getOptions()->get();
+        $expected                      = CurlOptionCollection::OPTIONS_DEFAULT;
+        $expected[CURLOPT_VERBOSE]     = true;
+        $expected[CURLINFO_HEADER_OUT] = false;
+        $expected[CURLOPT_STDERR]      = STDERR;
+        self::assertSame($expected, $actual);
+    }
+
+    /**
+     * @test
+     * @covers \MicroDeps\Curl\CurlException
+     */
+    public function itExceptsOnInvalidLogFolder(): void
+    {
+        $this->expectException(CurlException::class);
+        $this->expectExceptionMessage(
+            sprintf(
+                CurlException::MSG_DIRECTORY_NOT_CREATED,
+                '/invalid/path',
+                'mkdir(): Permission denied'
+            )
+        );
+        $dirPath = '/invalid/path';
+        $logPath = "{$dirPath}/test.log";
+        (new CurlHandleFactory(new CurlOptionCollection()))
+            ->logToFile($logPath)
+        ;
+    }
+
+    /** @test */
+    public function itCanSetConfig(): void
+    {
+        $expected = 1;
+        $factory  = new CurlHandleFactory();
+        $factory->updateOptions([CURLOPT_MAXREDIRS => $expected]);
+        $client = $factory->createGetHandle(null);
+        $actual = $client->getOptions()->getOption(CURLOPT_MAXREDIRS);
+        self::assertSame($expected, $actual);
+    }
+
+    /** @test */
+    public function itCanUseDefinedConfig(): void
+    {
+        $expected = [CURLOPT_MAXREDIRS => 1];
+        $factory  = new CurlHandleFactory(new CurlOptionCollection($expected));
+        $client   = $factory->createGetHandle(null);
+        $actual   = $client->getOptions()->get();
+        self::assertSame($expected, $actual);
+    }
+
+    /** @test */
+    public function itCanGoInsecure(): void
+    {
+        $actual = (new CurlHandleFactory(new CurlOptionCollection()))
+            ->insecure()
+            ->createGetHandle(null)->getOptions()->get();
+        self::assertFalse($actual[CURLOPT_SSL_VERIFYPEER]);
+        self::assertFalse($actual[CURLOPT_SSL_VERIFYSTATUS]);
+    }
+
+    /** @test */
+    public function itCanSetHeaders(): void
+    {
+        $expected = ['X-Foo: Bar'];
+        $actual   = (new CurlHandleFactory(new CurlOptionCollection()))
+            ->withHeaders($expected)
+            ->createGetHandle(null)->getOptions()->getOption(CURLOPT_HEADER);
+        self::assertSame($expected, $actual);
+    }
+
+    /** @test */
+    public function itCanAddOptionsWhenCreatingHandle(): void
+    {
+        $expected = 1;
+        $actual   = (new CurlHandleFactory(new CurlOptionCollection()))
+            ->createGetHandle(null, [CURLOPT_MAXREDIRS => $expected])
+            ->getOptions()->getOption(CURLOPT_MAXREDIRS);
+        self::assertSame($expected, $actual);
     }
 }

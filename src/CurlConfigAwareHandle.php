@@ -15,10 +15,13 @@ final class CurlConfigAwareHandle
 {
     private CurlHandle $handle;
 
+    /**
+     * @throws CurlException
+     */
     public function __construct(private ?string $url, private CurlOptionCollection $options)
     {
         $handle = curl_init($this->url);
-        if (false === $handle) {
+        if (false === ($handle instanceof CurlHandle)) {
             throw new RuntimeException('Failed creating curl handle for url ' . ($url ?? '(not set)'));
         }
         $this->handle = $handle;
@@ -43,7 +46,7 @@ final class CurlConfigAwareHandle
         try {
             curl_setopt_array($this->handle, $this->options->get());
         } catch (ValueError $valueError) {
-            $valid   = get_defined_constants(true)['curl'];
+            $valid   = array_flip(get_defined_constants(true)['curl']);
             $invalid = array_diff_key($this->options->get(), $valid);
             throw CurlException::withFormatAndPrevious(
                 CurlException::MSG_INVALID_OPTIONS,
