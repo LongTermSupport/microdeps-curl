@@ -18,7 +18,7 @@ final class CurlHandleFactory
 
     public function insecure(): self
     {
-        $this->updateOptions(
+        $this->withOptions(
             [
                 CURLOPT_SSL_VERIFYPEER   => false,
                 CURLOPT_SSL_VERIFYSTATUS => false,
@@ -29,7 +29,7 @@ final class CurlHandleFactory
     }
 
     /** @param phpstanCurlOptions $options */
-    public function updateOptions(array $options): self
+    public function withOptions(array $options): self
     {
         $this->options->update($options);
 
@@ -41,13 +41,13 @@ final class CurlHandleFactory
      */
     public function withHeaders(array $headers): self
     {
-        return $this->updateOptions([CURLOPT_HEADER => $headers]);
+        return $this->withOptions([CURLOPT_HEADER => $headers]);
     }
 
     /** @param resource $fp */
     public function logToResource($fp): self
     {
-        return $this->updateOptions(
+        return $this->withOptions(
             [
                 /*
                  * The following two options are mutually exclusive,
@@ -99,7 +99,7 @@ final class CurlHandleFactory
     public function createGetHandle(?string $url, array $options = null): CurlConfigAwareHandle
     {
         if (null !== $options) {
-            $this->updateOptions($options);
+            $this->withOptions($options);
         }
 
         return new CurlConfigAwareHandle($url, $this->options);

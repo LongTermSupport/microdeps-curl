@@ -88,7 +88,7 @@ final class CurlHandleFactoryTest extends TestCase
     {
         $expected = 1;
         $factory  = new CurlHandleFactory();
-        $factory->updateOptions([CURLOPT_MAXREDIRS => $expected]);
+        $factory->withOptions([CURLOPT_MAXREDIRS => $expected]);
         $client = $factory->createGetHandle(null);
         $actual = $client->getOptions()->getOption(CURLOPT_MAXREDIRS);
         self::assertSame($expected, $actual);

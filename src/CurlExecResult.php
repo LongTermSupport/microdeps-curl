@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MicroDeps\Curl;
 
-final class CurlExec
+final class CurlExecResult
 {
     private bool   $success;
     private string $response;

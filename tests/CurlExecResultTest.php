@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace MicroDeps\Curl\Tests;
 
-use MicroDeps\Curl\CurlExec;
+use MicroDeps\Curl\CurlExecResult;
 use MicroDeps\Curl\CurlHandleFactory;
 use MicroDeps\Curl\CurlOptionCollection;
 use PHPUnit\Framework\TestCase;
@@ -12,11 +12,11 @@ use RuntimeException;
 
 /**
  * @internal
- * @covers \MicroDeps\Curl\CurlExec
+ * @covers \MicroDeps\Curl\CurlExecResult
  *
  * @small
  */
-final class CurlExecTest extends TestCase
+final class CurlExecResultTest extends TestCase
 {
     private const SUCCESS_URL      = 'https://httpstat.us/200';
     private const UNSUCCESSFUL_URL = 'https://httpstat.us/500';
@@ -30,7 +30,7 @@ final class CurlExecTest extends TestCase
         // Build the Curl Handle
         $handle = (new CurlHandleFactory(new CurlOptionCollection()))->createGetHandle('https://www.github.com');
         // Execute the handle and get a result object
-        $result = new CurlExec($handle);
+        $result = new CurlExecResult($handle);
         if (false === $result->isSuccess()) {
             // error handling stuff here
             throw new RuntimeException('Request failed: ' . $result->getError() . "\n" . $result->getInfoAsString());
@@ -45,7 +45,7 @@ final class CurlExecTest extends TestCase
     public function itCanDoSuccessfulRequestsAndGetInfo(): void
     {
         $handle = (new CurlHandleFactory(new CurlOptionCollection()))->createGetHandle(self::SUCCESS_URL);
-        $exec   = new CurlExec($handle);
+        $exec   = new CurlExecResult($handle);
         self::assertTrue($exec->isSuccess());
         self::assertSame('', $exec->getError());
         self::assertStringContainsString(self::SUCCESS_URL, $exec->getInfoAsString());
@@ -66,7 +66,7 @@ final class CurlExecTest extends TestCase
     public function itCanDoUnsuccessfulRequests(): void
     {
         $handle = (new CurlHandleFactory(new CurlOptionCollection()))->createGetHandle(self::UNSUCCESSFUL_URL);
-        $exec   = new CurlExec($handle);
+        $exec   = new CurlExecResult($handle);
         self::assertFalse($exec->isSuccess());
         self::assertSame('The requested URL returned error: 500 Internal Server Error', $exec->getError());
         self::assertStringContainsString(self::UNSUCCESSFUL_URL, $exec->getInfoAsString());
@@ -78,7 +78,7 @@ final class CurlExecTest extends TestCase
     public function itCanDoErrorRequests(): void
     {
         $handle = (new CurlHandleFactory(new CurlOptionCollection()))->createGetHandle(self::ERROR_URL);
-        $exec   = new CurlExec($handle);
+        $exec   = new CurlExecResult($handle);
         self::assertFalse($exec->isSuccess());
         self::assertSame('Could not resolve host: foo', $exec->getError());
         self::assertStringContainsString(self::ERROR_URL, $exec->getInfoAsString());
@@ -97,7 +97,7 @@ final class CurlExecTest extends TestCase
             ->logToResource($log)
             ->createGetHandle(self::UNSUCCESSFUL_URL)
         ;
-        new CurlExec($handle);
+        new CurlExecResult($handle);
         rewind($log);
         $actual = stream_get_contents($log);
         fclose($log);
@@ -121,7 +121,7 @@ final class CurlExecTest extends TestCase
             ->logToFile($filePath)
             ->createGetHandle(self::SUCCESS_URL)
         ;
-        new CurlExec($handle);
+        new CurlExecResult($handle);
         $actual = file_get_contents($filePath);
         if (!\is_string($actual)) {
             throw new RuntimeException('Failed getting contents from log file ' . $filePath);

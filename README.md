@@ -17,7 +17,7 @@ your project.
 There is a WIP microdeps installer system which can automate the process of copying and updating MicroDeps within your
 project: https://github.com/LongTermSupport/microdeps-installer
 
-## Usage
+## Quick Start
 
 ```php
 <?php
@@ -32,6 +32,51 @@ if (false === $result->isSuccess()) {
 $response = $result->getResponse();
 
 ```
+
+## Advanced
+
+The library provides a few simple building blocks:
+
+### CurlOptionCollection
+
+The [CurlOptionCollection](./src/CurlOptionCollection.php) is simply a collection of Curl configuration options. Curl
+options are all defined as constants within PHP and their values are integers. This collection object is used when
+configuring a Curl handle. You should continue to use the built in Curl constants directly, generally you will get IDE
+autocompletion for these if you simply type `CURLOPT_`.
+
+It is worth noting that the library defines some default configuration which you might want to familiarise yourself
+with.
+
+### CurlConfigAwareHandle
+
+One of the drawbacks of the built-in CurlHandle object is that there is no mechanism to introspect what configuration
+has been applied to a handle.
+
+The [CurlConfigAwareHandle](./src/CurlConfigAwareHandle.php) provides a simple wrapper aims to resolve that by taking a
+collection of options and applying them. Once created, the options are expected to be immutable. YOu could of course get
+the raw handle and then apply options, but that is definitely not advised.
+
+### CurlHandleFactory
+
+You may choose to build the CurlConfigAwareHandle manually, but you are encouraged to instead use
+the [CurlHandleFactory](./src/CurlHandleFactory.php). It provides a few simple methods for common configurations such as
+disabling SSL validation, configuring logging and setting custom headers. Further common configuration could easily be
+added to this factory - pull requests gratefully received.
+
+The factory provides a fluent interface, so configuration options can be chained together before finally calling
+`createGetHandle` to actually create an instance of `CurlConfigAwareHandle` with the required configuration applied.
+
+### CurlExecResult
+
+To represent the result of a call, we have the [CurlExecResult](./src/CurlExecResult.php)
+
+This is an immutable class that will execute the Curl request and then build the result data when the class is
+constructed.
+
+The class provides access to data such as a boolean `isSuccess`, the response text via `getResponse`. Note that the
+class can also be configured to log all requests to a distinct file based on the final URL that is visited. This can be
+very useful for debugging purposes and is achieved by passing in a path to a pre existing directory when creating the
+result object.
 
 ## Developing
 
