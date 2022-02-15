@@ -10,7 +10,7 @@ on:
 
 jobs:
   qa:
-    name: Build Dependencies
+    name: QA
     runs-on: ubuntu-latest
     steps:
       - name: Checkout latest Ref
