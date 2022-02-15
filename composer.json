@@ -1,6 +1,6 @@
 {
-  "name": "lts/microdeps-pdo",
-  "description": "A micro dependency that provides a PDO connection factory",
+  "name": "lts/microdeps-curl",
+  "description": "A micro dependency that provides a foundation for using Curl",
   "license": "MIT",
   "type": "library",
   "authors": [
