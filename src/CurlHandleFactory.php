@@ -18,14 +18,14 @@ final class CurlHandleFactory
 
     public function insecure(): self
     {
-        $this->withOptions(
-            [
-                CURLOPT_SSL_VERIFYPEER   => false,
-                CURLOPT_SSL_VERIFYSTATUS => false,
-            ]
-        );
+        $options = [
+            CURLOPT_SSL_VERIFYPEER => false,
+        ];
+        if (\defined('CURLOPT_SSL_VERIFYSTATUS')) {
+            $options += [CURLOPT_SSL_VERIFYSTATUS => false];
+        }
 
-        return $this;
+        return $this->withOptions($options);
     }
 
     /** @param phpstanCurlOptions $options */

@@ -51,7 +51,9 @@ final class CurlConfigAwareHandle
             throw CurlException::withFormatAndPrevious(
                 CurlException::MSG_INVALID_OPTIONS,
                 $valueError,
-                print_r($invalid, true)
+                print_r($invalid, true),
+                /* @phpstan-ignore-next-line confused by curl_version return type */
+                curl_version()['version']
             );
         }
     }

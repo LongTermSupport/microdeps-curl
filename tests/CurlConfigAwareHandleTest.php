@@ -29,7 +29,12 @@ final class CurlConfigAwareHandleTest extends TestCase
         $options        = CurlOptionCollection::OPTIONS_DEFAULT + $invalidOptions;
         $this->expectException(CurlException::class);
         $this->expectExceptionMessage(
-            sprintf(CurlException::MSG_INVALID_OPTIONS, print_r($invalidOptions, true))
+            sprintf(
+                CurlException::MSG_INVALID_OPTIONS,
+                print_r($invalidOptions, true),
+                    /* @phpstan-ignore-next-line confused by curl_version return type */
+                    curl_version()['version']
+            )
         );
         new CurlConfigAwareHandle(null, new CurlOptionCollection($options));
     }

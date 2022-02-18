@@ -35,7 +35,9 @@ final class CurlOptionCollectionTest extends TestCase
         $this->expectExceptionMessage(
             sprintf(
                 CurlException::MSG_INVALID_OPTIONS,
-                print_r($invalid, true)
+                print_r($invalid, true),
+                /* @phpstan-ignore-next-line confused by curl_version return type */
+                curl_version()['version']
             )
         );
         new CurlOptionCollection($invalid);
