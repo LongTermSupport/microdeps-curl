@@ -40,32 +40,53 @@ final class CurlOptionCollection
          */
         CURLOPT_FAILONERROR    => true,
     ];
+    /**
+     * These are special options that don't start with CURLOPT for whatever reason.
+     */
+    private const SPECIAL_OPTS = [
+        'CURLINFO_HEADER_OUT',
+    ];
 
     /** @var array<int,string> */
-    public readonly array $validOptions;
+    private static array $validOptions = [];
 
     /**
-     * The configuration with constant names for keys instead of ints
+     * The configuration with constant names for keys instead of ints.
      *
      * @var array<string, phpstanCurlOption>
      */
     private array $optionsDebug = [];
 
+    /** @var phpstanCurlOptions */
+    private $options;
+
     /**
      * @param phpstanCurlOptions $options
      */
-    public function __construct(private array $options = self::OPTIONS_DEFAULT)
+    public function __construct(array $options = self::OPTIONS_DEFAULT)
     {
-        $this->validOptions = array_flip(get_defined_constants(true)['curl']);
-        $this->updateOptionsDebug();
+        $this->set($options);
     }
 
-    private function updateOptionsDebug(): void
+    /** @return array<int,string> */
+    public static function validOptions(): array
     {
-        $this->optionsDebug = [];
-        foreach ($this->options as $int => $val) {
-            $this->optionsDebug[$this->validOptions[$int]] = $val;
+        if ([] === self::$validOptions) {
+            $curlOptions = get_defined_constants(true)['curl'];
+            $curlOptions = array_filter(
+                $curlOptions,
+                static fn ($key) => str_starts_with($key, 'CURLOPT_')
+                                   || \in_array($key, self::SPECIAL_OPTS, true),
+                ARRAY_FILTER_USE_KEY
+            );
+            // note, as we do the flip, we aggregate some aliased options.
+            // There are some options with multiple constants that point to the same int value
+            /** @var array<int, string> $curlOptions */
+            $curlOptions        = array_flip($curlOptions);
+            self::$validOptions = $curlOptions;
         }
+
+        return self::$validOptions;
     }
 
     /**
@@ -75,25 +96,39 @@ final class CurlOptionCollection
      */
     public function set(array $options = null): self
     {
-        $this->options = ($options ?? self::OPTIONS_DEFAULT);
-        $this->updateOptionsDebug();
+        $this->options = $this->optionsDebug = [];
+        $this->update($options ?? self::OPTIONS_DEFAULT);
 
         return $this;
     }
 
     /**
      * @param phpstanCurlOptions $options
+     *
+     * @throws CurlException
      */
     public function update(array $options): self
     {
         if ([] === $options) {
             return $this;
         }
+        self::validOptions();
         // note, array_merge won't work due to numeric keys for curl options
+        $invalid = [];
         foreach ($options as $key => $value) {
-            $this->options[$key] = $value;
+            if (!isset(self::$validOptions[$key])) {
+                $invalid[$key] = $value;
+                continue;
+            }
+            $this->options[$key]                           = $value;
+            $this->optionsDebug[self::$validOptions[$key]] = $value;
         }
-        $this->updateOptionsDebug();
+        if ([] !== $invalid) {
+            throw CurlException::withFormat(
+                CurlException::MSG_INVALID_OPTIONS,
+                print_r($invalid, true)
+            );
+        }
 
         return $this;
     }
@@ -108,5 +143,11 @@ final class CurlOptionCollection
     public function getOption(int $key): mixed
     {
         return $this->options[$key] ?? null;
+    }
+
+    /** @return array<string, phpstanCurlOption> */
+    public function getOptionsDebug(): array
+    {
+        return $this->optionsDebug;
     }
 }

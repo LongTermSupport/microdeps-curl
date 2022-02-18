@@ -11,6 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @internal
+ * @covers \MicroDeps\Curl\CurlConfigAwareHandle
  * @covers \MicroDeps\Curl\CurlHandleFactory
  *
  * @small
