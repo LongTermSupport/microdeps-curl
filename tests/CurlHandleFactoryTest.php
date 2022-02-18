@@ -28,8 +28,7 @@ final class CurlHandleFactoryTest extends TestCase
         $this->expectExceptionMessage(substr(CurlException::MSG_DIRECTORY_NOT_CREATED, 0, 10));
         $filePath = '/invalid/path';
         (new CurlHandleFactory(new CurlOptionCollection()))
-            ->logToFile($filePath)
-        ;
+            ->logToFile($filePath);
     }
 
     /** @test */
@@ -44,8 +43,7 @@ final class CurlHandleFactoryTest extends TestCase
             rmdir($dirPath);
         }
         (new CurlHandleFactory(new CurlOptionCollection()))
-            ->logToFile($logPath)
-        ;
+            ->logToFile($logPath);
         self::assertDirectoryExists($dirPath);
         self::assertSame('755', decoct(fileperms($dirPath) & 0777));
     }
@@ -80,8 +78,7 @@ final class CurlHandleFactoryTest extends TestCase
         $dirPath = '/invalid/path';
         $logPath = "{$dirPath}/test.log";
         (new CurlHandleFactory(new CurlOptionCollection()))
-            ->logToFile($logPath)
-        ;
+            ->logToFile($logPath);
     }
 
     /** @test */
@@ -112,7 +109,9 @@ final class CurlHandleFactoryTest extends TestCase
             ->insecure()
             ->createGetHandle(null)->getOptions()->get();
         self::assertFalse($actual[CURLOPT_SSL_VERIFYPEER]);
-        self::assertFalse($actual[CURLOPT_SSL_VERIFYSTATUS]);
+        if (defined('CURLOPT_SSL_VERIFYSTATUS')) {
+            self::assertFalse($actual[CURLOPT_SSL_VERIFYSTATUS]);
+        }
     }
 
     /** @test */
