@@ -15,6 +15,7 @@ final class CurlException extends Exception
     public const MSG_INVALID_OPTIONS            = 'Invalid Curl Option(s) %s';
     public const MSG_FAILED_WRITING_TO_LOG      = 'Failed writing to log: %s';
     public const MSG_FAILED_OPENING_LOG_FILE    = 'Failed opening log file path: %s';
+    public const MSG_FAILED_REQUEST             = "Unsuccesful request to url: %s\nError: %s\nInfo: %s";
 
     private function __construct(string $message, Throwable $previous = null)
     {

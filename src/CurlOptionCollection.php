@@ -41,11 +41,31 @@ final class CurlOptionCollection
         CURLOPT_FAILONERROR    => true,
     ];
 
+    /** @var array<int,string> */
+    public readonly array $validOptions;
+
+    /**
+     * The configuration with constant names for keys instead of ints
+     *
+     * @var array<string, phpstanCurlOption>
+     */
+    private array $optionsDebug = [];
+
     /**
      * @param phpstanCurlOptions $options
      */
     public function __construct(private array $options = self::OPTIONS_DEFAULT)
     {
+        $this->validOptions = array_flip(get_defined_constants(true)['curl']);
+        $this->updateOptionsDebug();
+    }
+
+    private function updateOptionsDebug(): void
+    {
+        $this->optionsDebug = [];
+        foreach ($this->options as $int => $val) {
+            $this->optionsDebug[$this->validOptions[$int]] = $val;
+        }
     }
 
     /**
@@ -56,6 +76,7 @@ final class CurlOptionCollection
     public function set(array $options = null): self
     {
         $this->options = ($options ?? self::OPTIONS_DEFAULT);
+        $this->updateOptionsDebug();
 
         return $this;
     }
@@ -72,6 +93,7 @@ final class CurlOptionCollection
         foreach ($options as $key => $value) {
             $this->options[$key] = $value;
         }
+        $this->updateOptionsDebug();
 
         return $this;
     }
