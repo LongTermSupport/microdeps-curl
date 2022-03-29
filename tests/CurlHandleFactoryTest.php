@@ -53,7 +53,7 @@ final class CurlHandleFactoryTest extends TestCase
     {
         $factory = (new CurlHandleFactory(new CurlOptionCollection()));
         $factory->logToResource(STDERR);
-        $actual                        = $factory->createGetHandle(null)->getOptions()->get();
+        $actual                        = $factory->createGetHandle('foo')->getOptions()->get();
         $expected                      = CurlOptionCollection::OPTIONS_DEFAULT;
         $expected[CURLOPT_VERBOSE]     = true;
         $expected[CURLINFO_HEADER_OUT] = false;
@@ -87,7 +87,7 @@ final class CurlHandleFactoryTest extends TestCase
         $expected = 1;
         $factory  = new CurlHandleFactory();
         $factory->withOptions([CURLOPT_MAXREDIRS => $expected]);
-        $client = $factory->createGetHandle(null);
+        $client = $factory->createGetHandle('foo');
         $actual = $client->getOptions()->getOption(CURLOPT_MAXREDIRS);
         self::assertSame($expected, $actual);
     }
@@ -97,7 +97,7 @@ final class CurlHandleFactoryTest extends TestCase
     {
         $expected = [CURLOPT_MAXREDIRS => 1];
         $factory  = new CurlHandleFactory(new CurlOptionCollection($expected));
-        $client   = $factory->createGetHandle(null);
+        $client   = $factory->createGetHandle('foo');
         $actual   = $client->getOptions()->get();
         self::assertSame($expected, $actual);
     }
@@ -107,7 +107,7 @@ final class CurlHandleFactoryTest extends TestCase
     {
         $actual = (new CurlHandleFactory(new CurlOptionCollection()))
             ->insecure()
-            ->createGetHandle(null)->getOptions()->get();
+            ->createGetHandle('foo')->getOptions()->get();
         self::assertFalse($actual[CURLOPT_SSL_VERIFYPEER]);
         if (defined('CURLOPT_SSL_VERIFYSTATUS')) {
             self::assertFalse($actual[CURLOPT_SSL_VERIFYSTATUS]);
@@ -120,7 +120,7 @@ final class CurlHandleFactoryTest extends TestCase
         $expected = ['X-Foo: Bar'];
         $actual   = (new CurlHandleFactory(new CurlOptionCollection()))
             ->withHeaders($expected)
-            ->createGetHandle(null)->getOptions()->getOption(CURLOPT_HEADER);
+            ->createGetHandle('foo')->getOptions()->getOption(CURLOPT_HEADER);
         self::assertSame($expected, $actual);
     }
 
@@ -129,7 +129,7 @@ final class CurlHandleFactoryTest extends TestCase
     {
         $expected = 1;
         $actual   = (new CurlHandleFactory(new CurlOptionCollection()))
-            ->createGetHandle(null, [CURLOPT_MAXREDIRS => $expected])
+            ->createGetHandle('foo', [CURLOPT_MAXREDIRS => $expected])
             ->getOptions()->getOption(CURLOPT_MAXREDIRS);
         self::assertSame($expected, $actual);
     }

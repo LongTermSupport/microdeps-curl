@@ -19,6 +19,7 @@ final class CurlException extends Exception
 
     private function __construct(string $message, Throwable $previous = null)
     {
+        $message = $this->appendInfo($message);
         parent::__construct($message, 0, $previous);
     }
 
@@ -30,5 +31,28 @@ final class CurlException extends Exception
     public static function withFormatAndPrevious(string $format, Throwable $previous, string ...$values): self
     {
         return new self(sprintf($format, ...$values), $previous);
+    }
+
+    private function appendInfo(string $message): string
+    {
+        $curlVersion = curl_version();
+        if (false === $curlVersion) {
+            throw new \RuntimeException('Curl version not available, is curl actually installed?');
+        }
+        $curlFeatures = $curlVersion['features'];
+        unset($curlVersion['features']);
+        $version   = "\nCurl version: " . print_r($curlVersion, true);
+        $features  = "\nFeatures:\n";
+        $bitfields = [
+            'CURL_VERSION_IPV6',
+            'CURL_VERSION_KERBEROS4',
+            'CURL_VERSION_SSL',
+            'CURL_VERSION_LIBZ',
+        ];
+        foreach ($bitfields as $feature) {
+            $features .= "\n - $feature: " . ((($curlFeatures & constant($feature)) > 0) ? ' true' : ' false');
+        }
+
+        return "$message\n\n$version\n\n$features";
     }
 }

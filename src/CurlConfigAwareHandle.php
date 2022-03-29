@@ -18,11 +18,11 @@ final class CurlConfigAwareHandle
     /**
      * @throws CurlException
      */
-    public function __construct(private ?string $url, private CurlOptionCollection $options)
+    public function __construct(public readonly string $url, private CurlOptionCollection $options)
     {
         $handle = curl_init($this->url);
         if (false === ($handle instanceof CurlHandle)) {
-            throw new RuntimeException('Failed creating curl handle for url ' . ($url ?? '(not set)'));
+            throw new RuntimeException('Failed creating curl handle for url ' . $url);
         }
         $this->handle = $handle;
         $this->applyOptions();

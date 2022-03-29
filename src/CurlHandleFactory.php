@@ -19,10 +19,13 @@ final class CurlHandleFactory
     public function insecure(): self
     {
         $options = [
-            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYPEER => 0,
         ];
         if (\defined('CURLOPT_SSL_VERIFYSTATUS')) {
-            $options += [CURLOPT_SSL_VERIFYSTATUS => false];
+            $options += [CURLOPT_SSL_VERIFYSTATUS => 0];
+        }
+        if (\defined('CURLOPT_SSL_VERIFYHOST')) {
+            $options += [CURLOPT_SSL_VERIFYHOST => 0];
         }
 
         return $this->withOptions($options);
@@ -96,7 +99,7 @@ final class CurlHandleFactory
     /**
      * @param phpstanCurlOptions $options
      */
-    public function createGetHandle(?string $url, array $options = null): CurlConfigAwareHandle
+    public function createGetHandle(string $url, array $options = null): CurlConfigAwareHandle
     {
         if (null !== $options) {
             $this->withOptions($options);

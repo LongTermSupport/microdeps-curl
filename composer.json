@@ -10,8 +10,8 @@
     }
   ],
   "require": {
-    "php": "^8.0",
-    "ext-curl": "^8.0"
+    "php": "^8.1",
+    "ext-curl": "^8.1"
   },
   "require-dev": {
     "lts/php-qa-ci": "dev-master@dev"

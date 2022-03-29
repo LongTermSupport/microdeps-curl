@@ -8,30 +8,100 @@ final class CurlExecResult
 {
     private bool   $success;
     private string $response;
-    /** @var array<string,string> */
+    /**
+     * @var array{}|array{
+     *     url: string,
+     *      content_type: null|string,
+     *      http_code: integer,
+     *      header_size: integer,
+     *      request_size: integer,
+     *      filetime: integer,
+     *      ssl_verify_result:integer,
+     *      redirect_count: integer,
+     *      total_time: float,
+     *      namelookup_time: float,
+     *      connect_time: float,
+     *      pretransfer_time: float,
+     *      size_upload: float,
+     *      size_download: float,
+     *      speed_download: float,
+     *      speed_upload: float,
+     *      download_content_length: float,
+     *      upload_content_length: float,
+     *      starttransfer_time:float,
+     *      redirect_time: float,
+     *      redirect_url: string,
+     *      primary_ip: string,
+     *      certinfo: array<int,array<string,string>>,
+     *      primary_port: integer,
+     *      local_ip: string,
+     *      local_port: integer,
+     *      http_version: integer,
+     *      protocol: integer,
+     *      ssl_verifyresult: integer,
+     *      scheme: string
+     * }
+     */
     private array  $info;
     private string $error;
 
     /**
      * @throws CurlException
      */
-    public function __construct(
+    private function __construct(
         private CurlConfigAwareHandle $handle,
-        private ?string $logResponseDirectory = null
+        private ?string               $logResponseDirectory = null
     ) {
         $rawHandle      = $this->handle->getHandle();
         $result         = curl_exec($rawHandle);
         $this->response = \is_string($result) ? $result : '';
         $this->info     = \is_array($info = curl_getinfo($rawHandle)) ? $info : [];
         $this->error    = curl_error($rawHandle);
-        $this->success  = false !== $result && 200 === $this->info['http_code'];
+        $this->success  = (false !== $result) && (200 === ($this->info['http_code'] ?? false));
         $this->log();
         $this->logResponse();
     }
 
+    /**
+     * Will return the result on success or failure
+     *
+     * @throws CurlException
+     */
+    public static function try(
+        CurlConfigAwareHandle $handle,
+        ?string               $logResponseDirectory = null
+    ): self {
+        return new self($handle, $logResponseDirectory);
+    }
+
+    /**
+     * Will return a successful result or throw a CurlException
+     *
+     * @throws CurlException
+     */
+    public static function exec(
+        CurlConfigAwareHandle $handle,
+        ?string               $logResponseDirectory = null
+    ): self {
+        $result = self::try($handle, $logResponseDirectory);
+        if (false === $result->isSuccess()) {
+            throw CurlException::withFormat(
+                CurlException::MSG_FAILED_REQUEST,
+                $handle->url,
+                $result->getError(),
+                $result->getInfoAsString()
+            );
+        }
+
+        return $result;
+    }
+
     public function getInfoAsString(): string
     {
-        return print_r($this->info, true);
+        return "Info:\n" .
+               print_r($this->info, true) .
+               "\n\nHandle Options:" .
+               print_r($this->handle->getOptions()->getOptionsDebug(), true);
     }
 
     public function isSuccess(): bool
@@ -93,7 +163,7 @@ final class CurlExecResult
                 $this->logResponseDirectory
             );
         }
-        $effectiveUrl = $this->info['url']          ?? 'no-url';
+        $effectiveUrl = $this->info['url'] ?? 'no-url';
         $type         = $this->info['content_type'] ?? 'html';
         $extension    = match (true) {
             str_contains($type, 'json') => 'json',

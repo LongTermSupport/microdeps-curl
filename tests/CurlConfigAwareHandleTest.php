@@ -36,13 +36,13 @@ final class CurlConfigAwareHandleTest extends TestCase
                     curl_version()['version']
             )
         );
-        new CurlConfigAwareHandle(null, new CurlOptionCollection($options));
+        new CurlConfigAwareHandle('foo', new CurlOptionCollection($options));
     }
 
     /** @test */
     public function itCanGetRawHandle(): void
     {
-        $handle = new CurlConfigAwareHandle(null, new CurlOptionCollection([]));
+        $handle = new CurlConfigAwareHandle('foo', new CurlOptionCollection([]));
         $actual = $handle->getHandle();
         self::assertInstanceOf(CurlHandle::class, $actual);
     }
@@ -50,7 +50,7 @@ final class CurlConfigAwareHandleTest extends TestCase
     /** @test */
     public function itCanGetOptions(): void
     {
-        $handle   = new CurlConfigAwareHandle(null, new CurlOptionCollection());
+        $handle   = new CurlConfigAwareHandle('foo', new CurlOptionCollection());
         $expected = CurlOptionCollection::OPTIONS_DEFAULT;
         $actual   = $handle->getOptions()->get();
         self::assertSame($expected, $actual);
