@@ -108,9 +108,9 @@ final class CurlHandleFactoryTest extends TestCase
         $actual = (new CurlHandleFactory(new CurlOptionCollection()))
             ->insecure()
             ->createGetHandle('foo')->getOptions()->get();
-        self::assertFalse($actual[CURLOPT_SSL_VERIFYPEER]);
-        if (defined('CURLOPT_SSL_VERIFYSTATUS')) {
-            self::assertFalse($actual[CURLOPT_SSL_VERIFYSTATUS]);
+        self::assertSame(0, $actual[CURLOPT_SSL_VERIFYPEER]);
+        if (\defined('CURLOPT_SSL_VERIFYSTATUS')) {
+            self::assertSame(0, $actual[CURLOPT_SSL_VERIFYSTATUS]);
         }
     }
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MicroDeps\Curl;
 
 use Exception;
+use RuntimeException;
 use Throwable;
 
 final class CurlException extends Exception
@@ -37,7 +38,7 @@ final class CurlException extends Exception
     {
         $curlVersion = curl_version();
         if (false === $curlVersion) {
-            throw new \RuntimeException('Curl version not available, is curl actually installed?');
+            throw new RuntimeException('Curl version not available, is curl actually installed?');
         }
         $curlFeatures = $curlVersion['features'];
         unset($curlVersion['features']);
@@ -50,9 +51,9 @@ final class CurlException extends Exception
             'CURL_VERSION_LIBZ',
         ];
         foreach ($bitfields as $feature) {
-            $features .= "\n - $feature: " . ((($curlFeatures & constant($feature)) > 0) ? ' true' : ' false');
+            $features .= "\n - {$feature}: " . ((($curlFeatures & \constant($feature)) > 0) ? ' true' : ' false');
         }
 
-        return "$message\n\n$version\n\n$features";
+        return "{$message}\n\n{$version}\n\n{$features}";
     }
 }

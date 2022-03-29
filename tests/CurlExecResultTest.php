@@ -91,8 +91,9 @@ final class CurlExecResultTest extends TestCase
         }
         $handle = (new CurlHandleFactory(new CurlOptionCollection()))
             ->logToResource($log)
-            ->createGetHandle(self::UNSUCCESSFUL_URL);
-        CurlExecResult::exec($handle);
+            ->createGetHandle(self::UNSUCCESSFUL_URL)
+        ;
+        CurlExecResult::try($handle);
         rewind($log);
         $actual = stream_get_contents($log);
         fclose($log);
@@ -114,7 +115,8 @@ final class CurlExecResultTest extends TestCase
         file_put_contents($filePath, '');
         $handle = (new CurlHandleFactory(new CurlOptionCollection()))
             ->logToFile($filePath)
-            ->createGetHandle(self::SUCCESS_URL);
+            ->createGetHandle(self::SUCCESS_URL)
+        ;
         CurlExecResult::exec($handle);
         $actual = file_get_contents($filePath);
         if (!\is_string($actual)) {

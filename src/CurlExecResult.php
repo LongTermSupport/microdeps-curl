@@ -50,7 +50,7 @@ final class CurlExecResult
      */
     private function __construct(
         private CurlConfigAwareHandle $handle,
-        private ?string               $logResponseDirectory = null
+        private ?string $logResponseDirectory = null
     ) {
         $rawHandle      = $this->handle->getHandle();
         $result         = curl_exec($rawHandle);
@@ -63,25 +63,25 @@ final class CurlExecResult
     }
 
     /**
-     * Will return the result on success or failure
+     * Will return the result on success or failure.
      *
      * @throws CurlException
      */
     public static function try(
         CurlConfigAwareHandle $handle,
-        ?string               $logResponseDirectory = null
+        ?string $logResponseDirectory = null
     ): self {
         return new self($handle, $logResponseDirectory);
     }
 
     /**
-     * Will return a successful result or throw a CurlException
+     * Will return a successful result or throw a CurlException.
      *
      * @throws CurlException
      */
     public static function exec(
         CurlConfigAwareHandle $handle,
-        ?string               $logResponseDirectory = null
+        ?string $logResponseDirectory = null
     ): self {
         $result = self::try($handle, $logResponseDirectory);
         if (false === $result->isSuccess()) {
@@ -163,7 +163,7 @@ final class CurlExecResult
                 $this->logResponseDirectory
             );
         }
-        $effectiveUrl = $this->info['url'] ?? 'no-url';
+        $effectiveUrl = $this->info['url']          ?? 'no-url';
         $type         = $this->info['content_type'] ?? 'html';
         $extension    = match (true) {
             str_contains($type, 'json') => 'json',
