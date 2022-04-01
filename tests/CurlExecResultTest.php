@@ -76,7 +76,7 @@ final class CurlExecResultTest extends TestCase
         $handle = (new CurlHandleFactory(new CurlOptionCollection()))->createGetHandle(self::ERROR_URL);
         $exec   = CurlExecResult::try($handle);
         self::assertFalse($exec->isSuccess());
-        self::assertSame('Could not resolve host: foo', $exec->getError());
+        self::assertSame('Could not resolve host: foo; Unknown error', $exec->getError());
         self::assertStringContainsString(self::ERROR_URL, $exec->getInfoAsString());
     }
 
