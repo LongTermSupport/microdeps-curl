@@ -68,6 +68,9 @@ final class CurlHandleFactory
      */
     public function logToFile(string $logFilePath): self
     {
+        if ('' === $logFilePath) {
+            return $this;
+        }
         if (!is_writable($logFilePath)) {
             $logFileDir = \dirname($logFilePath);
             if (!is_dir($logFileDir) && !@mkdir($logFileDir, 0755, true) && !is_dir($logFileDir)) {
