@@ -110,4 +110,13 @@ final class CurlHandleFactory
 
         return new CurlConfigAwareHandle($url, $this->options);
     }
+
+    public function createPostHandle(string $url, array $postData, array $options = []): CurlConfigAwareHandle
+    {
+        $option['CURLOPT_POST']       = 1;
+        $option['CURLOPT_POSTFIELDS'] = $postData;
+        $this->withOptions($options);
+
+        return new CurlConfigAwareHandle($url, $this->options);
+    }
 }
