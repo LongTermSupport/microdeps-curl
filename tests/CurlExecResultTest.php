@@ -22,6 +22,23 @@ final class CurlExecResultTest extends TestCase
     private const UNSUCCESSFUL_URL = 'https://httpstat.us/500';
     private const ERROR_URL        = 'https://foo';
 
+    private const POST_URL = 'http://ptsv3.com/t/asd/post/';
+
+    /**
+     * @test
+     */
+    public function itCanDoPostRequests(): void
+    {
+        $data     = ['foo' => 'bar'];
+        $handle   = (new CurlHandleFactory(new CurlOptionCollection()))->createPostHandle(self::POST_URL, $data);
+        $result   = CurlExecResult::exec($handle);
+        $info     = $result->getInfo();
+        self::assertSame('POST', $info['effective_method']);
+        $response = $result->getResponse();
+        self::assertStringContainsString('foo', $response);
+        self::assertStringContainsString('bar', $response);
+    }
+
     /**
      * @test
      */
