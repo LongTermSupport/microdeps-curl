@@ -33,12 +33,6 @@ final class CurlOptionCollection
          * Log the headers that are sent with the initial request and make available via curl_getinfo
          */
         CURLINFO_HEADER_OUT    => true,
-
-        /*
-         * true to fail verbosely if the HTTP code returned is greater than or equal to 400.
-         * The default behavior is to return the page normally, ignoring the code.
-         */
-        CURLOPT_FAILONERROR    => true,
     ];
     /**
      * These are special options that don't start with CURLOPT for whatever reason.
