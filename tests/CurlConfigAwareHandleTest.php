@@ -21,6 +21,7 @@ final class CurlConfigAwareHandleTest extends TestCase
 {
     /**
      * @test
+     *
      * @covers \MicroDeps\Curl\CurlException
      */
     public function itHandlesInvalidOptions(): void
@@ -32,8 +33,8 @@ final class CurlConfigAwareHandleTest extends TestCase
             sprintf(
                 CurlException::MSG_INVALID_OPTIONS,
                 print_r($invalidOptions, true),
-                    /* @phpstan-ignore-next-line confused by curl_version return type */
-                    curl_version()['version']
+                /* @phpstan-ignore-next-line confused by curl_version return type */
+                curl_version()['version']
             )
         );
         new CurlConfigAwareHandle('foo', new CurlOptionCollection($options));
@@ -60,7 +61,7 @@ final class CurlConfigAwareHandleTest extends TestCase
     public function itExceptsWhenFailingToCurlInit(): void
     {
         self::markTestSkipped('unable to find a way to make curl init fail');
-//        $this->expectException(\RuntimeException::class);
-//        new CurlConfigAwareHandle(str_repeat('a', 9999), new CurlOptionCollection());
+        //        $this->expectException(\RuntimeException::class);
+        //        new CurlConfigAwareHandle(str_repeat('a', 9999), new CurlOptionCollection());
     }
 }

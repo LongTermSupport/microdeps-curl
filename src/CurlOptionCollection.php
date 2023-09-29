@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace MicroDeps\Curl;
 
+use InvalidArgumentException;
+
 /**
- * @phpstan-type  phpstanCurlOption array<int, string>|bool|float|int|resource|string
+ * @phpstan-type  phpstanCurlOption array<int|string,int|string>|bool|float|int|resource|string
  * @phpstan-type  phpstanCurlOptions array<int, phpstanCurlOption>
  */
 final class CurlOptionCollection
@@ -69,7 +71,7 @@ final class CurlOptionCollection
             $curlOptions = get_defined_constants(true)['curl'];
             $curlOptions = array_filter(
                 $curlOptions,
-                static fn($key) => str_starts_with($key, 'CURLOPT_')
+                static fn ($key) => str_starts_with($key, 'CURLOPT_')
                                    || \in_array($key, self::SPECIAL_OPTS, true),
                 ARRAY_FILTER_USE_KEY
             );
@@ -110,9 +112,10 @@ final class CurlOptionCollection
         // note, array_merge won't work due to numeric keys for curl options
         $invalid = [];
         foreach ($options as $key => $value) {
-            if (is_string($key)) {
-                throw new \InvalidArgumentException("
-                you have set an option with a string key $key, 
+            /* @phpstan-ignore-next-line its user data, we can't guarantee types and need to check */
+            if (\is_string($key)) {
+                throw new InvalidArgumentException("
+                you have set an option with a string key {$key}, 
                 instead you should be using teh actual curl constant - not its name as a string
                 ");
             }

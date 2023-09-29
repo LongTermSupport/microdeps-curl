@@ -1,0 +1,1 @@
+echo "DISABLING THE LINK CHECKER FOR NOW - need to get ltscommerce.dev up and running again"

@@ -11,6 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @internal
+ *
  * @covers \MicroDeps\Curl\CurlConfigAwareHandle
  * @covers \MicroDeps\Curl\CurlHandleFactory
  *
@@ -20,6 +21,7 @@ final class CurlHandleFactoryTest extends TestCase
 {
     /**
      * @test
+     *
      * @covers \MicroDeps\Curl\CurlException
      */
     public function itExceptsIfInvalidLogFile(): void
@@ -27,8 +29,7 @@ final class CurlHandleFactoryTest extends TestCase
         $this->expectException(CurlException::class);
         $this->expectExceptionMessage(substr(CurlException::MSG_DIRECTORY_NOT_CREATED, 0, 10));
         $filePath = '/invalid/path';
-        (new CurlHandleFactory(new CurlOptionCollection()))
-            ->logToFile($filePath);
+        (new CurlHandleFactory(new CurlOptionCollection()))->logToFile($filePath);
     }
 
     /** @test */
@@ -37,15 +38,16 @@ final class CurlHandleFactoryTest extends TestCase
         $dirPath = __DIR__ . '/../var/' . __METHOD__;
         $logPath = "{$dirPath}/test.log";
         if (file_exists($logPath)) {
-            unlink($logPath);
+            \Safe\unlink($logPath);
         }
         if (is_dir($dirPath)) {
-            rmdir($dirPath);
+            \Safe\rmdir($dirPath);
         }
         (new CurlHandleFactory(new CurlOptionCollection()))
-            ->logToFile($logPath);
+            ->logToFile($logPath)
+        ;
         self::assertDirectoryExists($dirPath);
-        self::assertSame('755', decoct(fileperms($dirPath) & 0777));
+        self::assertSame('750', decoct(\Safe\fileperms($dirPath) & 0777));
     }
 
     /** @test */
@@ -63,6 +65,7 @@ final class CurlHandleFactoryTest extends TestCase
 
     /**
      * @test
+     *
      * @covers \MicroDeps\Curl\CurlException
      */
     public function itExceptsOnInvalidLogFolder(): void
@@ -78,7 +81,8 @@ final class CurlHandleFactoryTest extends TestCase
         $dirPath = '/invalid/path';
         $logPath = "{$dirPath}/test.log";
         (new CurlHandleFactory(new CurlOptionCollection()))
-            ->logToFile($logPath);
+            ->logToFile($logPath)
+        ;
     }
 
     /** @test */
@@ -107,7 +111,8 @@ final class CurlHandleFactoryTest extends TestCase
     {
         $actual = (new CurlHandleFactory(new CurlOptionCollection()))
             ->insecure()
-            ->createGetHandle('foo')->getOptions()->get();
+            ->createGetHandle('foo')->getOptions()->get()
+        ;
         self::assertSame(0, $actual[CURLOPT_SSL_VERIFYPEER]);
         if (\defined('CURLOPT_SSL_VERIFYSTATUS')) {
             self::assertSame(0, $actual[CURLOPT_SSL_VERIFYSTATUS]);
@@ -120,7 +125,8 @@ final class CurlHandleFactoryTest extends TestCase
         $expected = ['X-Foo: Bar'];
         $actual   = (new CurlHandleFactory(new CurlOptionCollection()))
             ->withHeaders($expected)
-            ->createGetHandle('foo')->getOptions()->getOption(CURLOPT_HEADER);
+            ->createGetHandle('foo')->getOptions()->getOption(CURLOPT_HEADER)
+        ;
         self::assertSame($expected, $actual);
     }
 
@@ -130,7 +136,8 @@ final class CurlHandleFactoryTest extends TestCase
         $expected = 1;
         $actual   = (new CurlHandleFactory(new CurlOptionCollection()))
             ->createGetHandle('foo', [CURLOPT_MAXREDIRS => $expected])
-            ->getOptions()->getOption(CURLOPT_MAXREDIRS);
+            ->getOptions()->getOption(CURLOPT_MAXREDIRS)
+        ;
         self::assertSame($expected, $actual);
     }
 }

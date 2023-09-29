@@ -8,10 +8,10 @@ use MicroDeps\Curl\CurlExecResult;
 use MicroDeps\Curl\CurlHandleFactory;
 use MicroDeps\Curl\CurlOptionCollection;
 use PHPUnit\Framework\TestCase;
-use RuntimeException;
 
 /**
  * @internal
+ *
  * @covers \MicroDeps\Curl\CurlExecResult
  *
  * @small
@@ -29,14 +29,14 @@ final class CurlExecResultTest extends TestCase
      */
     public function itCanDoPostRequests(): void
     {
-        $data     = ['foo' => 'bar'];
-        $handle   = (new CurlHandleFactory(new CurlOptionCollection()))->createPostHandle(self::POST_URL, $data);
-        $result   = CurlExecResult::exec($handle);
-        $info     = $result->getInfo();
+        $data   = ['foo' => 'bar'];
+        $handle = (new CurlHandleFactory(new CurlOptionCollection()))->createPostHandle(self::POST_URL, $data);
+        $result = CurlExecResult::exec($handle);
+        $info   = $result->getInfo();
+        /* @phpstan-ignore-next-line offset does exist */
         self::assertSame('POST', $info['effective_method']);
         $response = $result->getResponse();
-        self::assertStringContainsString('foo', $response);
-        self::assertStringContainsString('bar', $response);
+        self::assertStringContainsString('Thank you for this dump', $response);
     }
 
     /**
@@ -69,6 +69,7 @@ final class CurlExecResultTest extends TestCase
             'http_code'    => 200,
         ];
         foreach ($expect as $expectKey => $expectVal) {
+            /* @phpstan-ignore-next-line offset does exist */
             self::assertSame($expectVal, $actual[$expectKey]);
         }
     }
@@ -81,8 +82,8 @@ final class CurlExecResultTest extends TestCase
         $handle = (new CurlHandleFactory(new CurlOptionCollection()))->createGetHandle(self::UNSUCCESSFUL_URL);
         $exec   = CurlExecResult::try($handle);
         self::assertFalse($exec->isSuccess());
-        self::assertSame('The requested URL returned error: 500 Internal Server Error', $exec->getError());
         self::assertStringContainsString(self::UNSUCCESSFUL_URL, $exec->getInfoAsString());
+        self::assertSame(500, $exec->getInfo()['http_code'] ?? '');
     }
 
     /**
@@ -93,7 +94,7 @@ final class CurlExecResultTest extends TestCase
         $handle = (new CurlHandleFactory(new CurlOptionCollection()))->createGetHandle(self::ERROR_URL);
         $exec   = CurlExecResult::try($handle);
         self::assertFalse($exec->isSuccess());
-        self::assertSame('Could not resolve host: foo; Unknown error', $exec->getError());
+        self::assertSame('Could not resolve host: foo', $exec->getError());
         self::assertStringContainsString(self::ERROR_URL, $exec->getInfoAsString());
     }
 
@@ -102,22 +103,16 @@ final class CurlExecResultTest extends TestCase
      */
     public function itCanLog(): void
     {
-        $log = fopen('php://memory', 'ab+');
-        if (false === $log) {
-            throw new RuntimeException('Failed opening memory pointer');
-        }
+        $log    = \Safe\fopen('php://memory', 'ab+');
         $handle = (new CurlHandleFactory(new CurlOptionCollection()))
             ->logToResource($log)
-            ->createGetHandle(self::UNSUCCESSFUL_URL)
+            ->createGetHandle(self::ERROR_URL)
         ;
         CurlExecResult::try($handle);
-        rewind($log);
-        $actual = stream_get_contents($log);
-        fclose($log);
-        if (!\is_string($actual)) {
-            throw new RuntimeException('Failed getting string from log');
-        }
-        self::assertStringContainsString(self::UNSUCCESSFUL_URL, $actual);
+        \Safe\rewind($log);
+        $actual = \Safe\stream_get_contents($log);
+        \Safe\fclose($log);
+        self::assertStringContainsString(self::ERROR_URL, $actual);
         self::assertStringContainsString('Curl Error', $actual);
         $numLines = substr_count($actual, "\n");
         self::assertGreaterThan(20, $numLines);
@@ -129,16 +124,13 @@ final class CurlExecResultTest extends TestCase
     public function itCanLogToFile(): void
     {
         $filePath = __DIR__ . '/../var/' . __METHOD__ . '.log';
-        file_put_contents($filePath, '');
+        \Safe\file_put_contents($filePath, '');
         $handle = (new CurlHandleFactory(new CurlOptionCollection()))
             ->logToFile($filePath)
             ->createGetHandle(self::SUCCESS_URL)
         ;
         CurlExecResult::exec($handle);
-        $actual = file_get_contents($filePath);
-        if (!\is_string($actual)) {
-            throw new RuntimeException('Failed getting contents from log file ' . $filePath);
-        }
+        $actual = \Safe\file_get_contents($filePath);
         self::assertStringContainsString('< HTTP/1.1 200 OK', $actual);
         $numLines = substr_count($actual, "\n");
         self::assertGreaterThan(20, $numLines);

@@ -5,25 +5,24 @@ declare(strict_types=1);
 namespace MicroDeps\Curl;
 
 use CurlHandle;
-use RuntimeException;
+use MicroDeps\Curl\Interface\CurlConfigAwareHandleInterface;
+use Safe\Exceptions\CurlException as SafeCurlException;
 use ValueError;
 
 /**
  * This is a very simple wrapper that allows us to keep track of config for a specific CurlHandle.
  */
-final class CurlConfigAwareHandle
+final class CurlConfigAwareHandle implements CurlConfigAwareHandleInterface
 {
     private CurlHandle $handle;
 
     /**
+     * @throws SafeCurlException
      * @throws CurlException
      */
     public function __construct(public readonly string $url, private CurlOptionCollection $options)
     {
-        $handle = curl_init($this->url);
-        if (false === ($handle instanceof CurlHandle)) {
-            throw new RuntimeException('Failed creating curl handle for url ' . $url);
-        }
+        $handle       = \Safe\curl_init($this->url);
         $this->handle = $handle;
         $this->applyOptions();
     }

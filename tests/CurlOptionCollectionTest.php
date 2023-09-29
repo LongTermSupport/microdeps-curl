@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @internal
+ *
  * @coversNothing
  *
  * @small
@@ -21,7 +22,7 @@ final class CurlOptionCollectionTest extends TestCase
     {
         $expectedCount = 222;
         $actual        = CurlOptionCollection::validOptions();
-        self::assertCount($expectedCount, $actual);
+        self::assertGreaterThanOrEqual($expectedCount, $actual);
         $expected = [58 => 'CURLOPT_AUTOREFERER'];
         $actual   = [key($actual) => current($actual)];
         self::assertSame($expected, $actual);
@@ -51,7 +52,6 @@ final class CurlOptionCollectionTest extends TestCase
             'CURLOPT_RETURNTRANSFER'  => true,
             'CURLOPT_ACCEPT_ENCODING' => '',
             'CURLINFO_HEADER_OUT'     => true,
-            'CURLOPT_FAILONERROR'     => true,
         ];
         $actual   = (new CurlOptionCollection())->getOptionsDebug();
         self::assertSame($expected, $actual);

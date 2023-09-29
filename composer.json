@@ -11,10 +11,12 @@
   ],
   "require": {
     "php": "^8.1",
-    "ext-curl": "^8.1"
+    "ext-curl": "^8.1",
+    "thecodingmachine/safe": "^2.5"
   },
   "require-dev": {
-    "lts/php-qa-ci": "dev-master@dev"
+    "lts/php-qa-ci": "dev-master@dev",
+    "phpunit/phpunit": "^9.5"
   },
   "minimum-stability": "stable",
   "autoload": {
@@ -32,15 +34,15 @@
     }
   },
   "config": {
-    "bin-dir": "bin",
-    "optimize-autoloader": true,
-    "preferred-install": {
-      "*": "dist"
-    },
     "allow-plugins": {
       "infection/extension-installer": true,
       "phpstan/extension-installer": true,
       "ergebnis/composer-normalize": true
+    },
+    "bin-dir": "bin",
+    "optimize-autoloader": true,
+    "preferred-install": {
+      "*": "dist"
     }
   }
 }
