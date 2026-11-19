@@ -30,7 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Check the workflows with actions-qa-ci
-        uses: LongTermSupport/actions-qa-ci@c692fb40e93f3ad63d59adf78a86d1a1d0111449 # v0.1.1
+        uses: LongTermSupport/actions-qa-ci@ad81f5c1a62b26b8dbffd51a2180df7ba3c0120b # v0.2.0
 
   qa:
     name: QA
