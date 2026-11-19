@@ -4,17 +4,40 @@ on:
   push:
     branches:
       - '*'
+    # A push of documentation alone starts no run: no job reads Markdown.
+    # Instruction Markdown stays in.
+    paths:
+      - '**'
+      - '!**.md'
+      - '!docs/**'
+      - '**/CLAUDE.md'
+      - '**/AGENTS.md'
   pull_request:
     branches:
       - '*'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
+  actions-qa-ci:
+    name: actions-qa-ci
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - name: Check the workflows with actions-qa-ci
+        uses: LongTermSupport/actions-qa-ci@ad81f5c1a62b26b8dbffd51a2180df7ba3c0120b # v0.2.0
+
   qa:
     name: QA
     runs-on: ubuntu-latest
     steps:
       - name: Checkout latest Ref
-        uses: actions/checkout@v2
+        uses: actions/checkout@v7
         with:
           fetch-depth: 1
 
@@ -26,7 +49,7 @@ jobs:
           coverage: xdebug
 
       - name: Install dependencies with Composer
-        uses: ramsey/composer-install@v1
+        uses: ramsey/composer-install@v4
 
       - name: Run CI process
         run: bash ./ci.bash
